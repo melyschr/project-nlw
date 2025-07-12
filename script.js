@@ -1,0 +1,120 @@
+// const apiKeyInput = document.querySelector('#apiKey'); // pesquisa por seletor
+const gameSelect = document.getElementById('gameSelect')
+const questionInput = document.getElementById('questionInput')
+const apiKeyInput = document.getElementById('apiKey')
+const askButton = document.getElementById('askButton')
+const aiResponse = document.getElementById('aiResponse')
+const form = document.getElementById('form')
+
+const markdownToHTML = (text) => {
+    const converter = new showdown.Converter()
+    return converter.makeHtml(text)
+}
+
+const perguntarAI = async (question, game, apiKey) => {
+    const model = "gemini-2.0-flash"
+    const geminiURL = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
+    // ENGENHARIA DE PROMPT
+    const pergunta = `
+        ## Especialidade
+        Você é um especialista assistente de meta para o jogo ${game}
+        ## Tarefas
+        Você deve responder perguntas ao usuario com base no seu conhecimento sobre o jogo, estrategias, build e dicas
+        ## Regras
+        - Se voce não sabe a resposta responda com 'Não sei' de forma sincera e não tente inventar uma resposta
+        - Se a pergunta não tiver relação com o jogo responda com 'Essa pergunta não tem relação com o jogo ${game}'
+        - Considere a data atual $(new Date().toLocaleDateString('pt-BR'))
+        - Faça pesquisas atualizada sobre o patch atual, baseado na data atual, para dar uma resposta coerente.
+        - Nunca responda itens que voce não tenha certeza de que existe no patch atual
+        ## Cenarios de uso
+        - Análise de Build e Counters
+        - Estratégia de Rota e Prioridades
+        - Adaptação de itemização em tempo real
+        - controle de mapa e visão
+        - cenarios de um late gam e team fights
+
+        ## Resposta
+        - Economize na resposta, seja direto e responda no maximo 500 caracteres.
+        - Se a pergunta do usuario for pouco especifica, de uma sujestão de prompt com base na pergunta que ele fez e considerando o contexto do jogo, se necessario baseie-se nos cenarios de uso.
+        - Responda em markdown
+        - Não precisa fazer nenhuma saudação ou despedida, apenas responda o que usuario pediu.
+        --- 
+        # Exemplo de resposta
+        As perguntas do usuario podem incluir, não necessariamente nesta ordem: 
+        - o personagem do jogo ${game}
+        - a função do heroi no jogo (role)
+        - os itens
+        - as estrategias
+        - e objetivo
+        resposta: A build mais atual é: \n\n **Itens:**\n\n coloque os itens aqui.\n\n**Runas:**\n\nexemplo de runas\n\n
+
+        ---
+        Aqui está a pergunta do usuário: ${question}
+        `
+    const perguntaCOD = `
+         ## Especialidade
+        Você é um especialista assistente de meta para o jogo ${game}
+        ## Tarefas
+        Você deve responder perguntas ao usuario com base no seu conhecimento sobre o jogo, estrategias, build e dicas
+        ## Regras
+        - Se voce não sabe a resposta responda com 'Não sei' de forma sincera e não tente inventar uma resposta
+        - Se a pergunta não tiver relação com o jogo responda com 'Essa pergunta não tem relação com o jogo ${game}'
+        - Considere a data atual $(new Date().toLocaleDateString('pt-BR'))
+        - Faça pesquisas atualizada sobre o patch atual, baseado na data atual, para dar uma resposta coerente.
+    `
+    const contents = [{
+        role: "user",
+        parts: [{
+            text: pergunta
+        }]
+    }]
+
+    const tools = [{
+        google_search: {}
+    }]
+
+    // chamada API
+    const response = await fetch(geminiURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            contents,
+            tools
+        })
+    })
+
+    const data = await response.json()
+    return data.candidates[0].content.parts[0].text
+}
+
+const enviarFormulario = async (event) => {
+    event.preventDefault()
+    const apiKey = apiKeyInput.value
+    const game = gameSelect.value
+    const question = questionInput.value
+
+    if (apiKey == '' || game == '' || question == '') {
+        alert('Por favor, preencha todos os campos')
+        return
+    }
+
+    askButton.disabled = true
+    askButton.textContent = 'Perguntando...'
+    askButton.classList.add('loading')
+
+    try {
+        const text = await perguntarAI(question, game, apiKey)
+        aiResponse.querySelector('.response-content').innerHTML = markdownToHTML(text)
+        aiResponse.classList.remove('hidden')
+    } catch (error) {
+        console.log('Erro: ', error)
+    } finally {
+        askButton.disabled = false
+        askButton.textContent = "Perguntar"
+        askButton.classList.remove('loading')
+    }
+}
+
+form.addEventListener('submit', enviarFormulario)
