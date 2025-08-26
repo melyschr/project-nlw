@@ -52,7 +52,13 @@ const perguntarAI = async (question, game, apiKey) => {
         - as estrategias
         - e objetivo
         resposta: A build mais atual é: \n\n **Itens:**\n\n coloque os itens aqui.\n\n**Runas:**\n\nexemplo de runas\n\n
-
+        # Outro exemplo de resposta
+        Com base no jogo ${game} e no contexto dele, de uma pesquisada mais aprofundada sobre o enredo do jogo, explique o que é necessario fazer, e de sujestões para iniciantes do que pode ser feito no jogo
+        resposta: No início do jogo, colete madeira e 3 blocos de lã para fazer uma cama
+        Em seguida, procure comida em vilas de aldeões, ou mate carneiros, porcos e vacas para encher sua barra de stamina 
+        Se a noite chegar e você não estiver preparado 
+        Faça um abrigo provisório para evitar os monstros
+        Ou crie uma casa feita de terra com pedra próxima e colete minérios como carvão e ferro para fazer armas, armaduras e carvão para combustível
         ---
         Aqui está a pergunta do usuário: ${question}
         `
@@ -112,3 +118,4 @@ const enviarFormulario = async (event) => {
 }
 
 form.addEventListener('submit', enviarFormulario)
+
