@@ -52,6 +52,7 @@ const perguntarAI = async (question, game, apiKey) => {
         - as estrategias
         - e objetivo
         resposta: A build mais atual é: \n\n **Itens:**\n\n coloque os itens aqui.\n\n**Runas:**\n\nexemplo de runas\n\n
+        (caso as perguntas sejam relacionadas sobre o que se trata ou o usuario pedir uma explicação sobre o jogo ${game}, de um breve explicação dos objetivos do jogo, regras e outras coisas relevantes com base na sua especialidade nele.)
         # Outro exemplo de resposta
         Com base no jogo ${game} e no contexto dele, de uma pesquisada mais aprofundada sobre o enredo do jogo, explique o que é necessario fazer, e de sujestões para iniciantes do que pode ser feito no jogo
         resposta: No início do jogo, colete madeira e 3 blocos de lã para fazer uma cama
@@ -118,4 +119,5 @@ const enviarFormulario = async (event) => {
 }
 
 form.addEventListener('submit', enviarFormulario)
+
 
